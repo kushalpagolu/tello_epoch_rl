@@ -81,7 +81,7 @@ Initially, you might wobble and fall a lot (negative rewards). But over time, yo
 
 The added human-in-the-loop component allows you to act as a "teacher" for the RL agent. By providing feedback on the agent's actions (approving or disapproving), you can help the agent learn more quickly and safely. It's like having a driving instructor who tells you when you're doing something right or wrong.
 
-I hope this explanation helps! Reinforcement learning can be a bit tricky to grasp at first, but with practice and experimentation, you'll get the hang of it. Let me know if you have any other questions.
+Reinforcement learning can be a bit tricky to grasp at first, but with practice and experimentation, you'll get the hang of it. Let me know if you have any other questions.
 
 <div style="text-align: center">⁂</div>
 
