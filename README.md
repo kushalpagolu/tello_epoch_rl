@@ -10,7 +10,7 @@ Let us break down the reinforcement learning (RL) parts of this project, as if. 
 
 **The Big Picture: Reinforcement Learning**
 
-Imagine you're training a robot. You give the robot commands (actions), and the robot does something. If the robot does something good, you give it a treat (reward). If it does something bad, you might say "No!" (negative reward). The robot learns over time which actions lead to rewards.
+Think of it as a robot. You give the robot commands (actions), and the robot does something. If the robot does something good, you give it a pat (reward). If it does something bad, you might say "No!" (negative reward). The robot learns over time which actions lead to rewards.
 
 Reinforcement learning is similar, but instead of a robot, we have an *agent* (in this case, the drone), and instead of treats, we have numerical rewards. The agent's goal is to learn a *policy* – a strategy that tells it what action to take in any given situation to maximize its rewards.
 
