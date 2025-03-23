@@ -1,4 +1,4 @@
-hidapi
+hid
 pycryptodome
 numpy
 scipy
@@ -8,3 +8,4 @@ stable-baselines3
 gym
 djitellopy
 scikit-learn
+keyboard
