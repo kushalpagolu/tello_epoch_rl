@@ -246,6 +246,47 @@ The main code related to Reinforcement Learning is in `realtimelearning_rlagent.
     * The policy is how the agent maps a state (observation) to an action. In simpler terms, it's the agent's brain. The agent makes predictions from this brain and applies it to the environment.
     * The agent updates its policy to maximize reward using the PPO model.
 
+
+**How the Agent Interacts With You:**
+
+The primary interaction occurs within the `DroneControlEnv` class, specifically in the `step` method and making use of the `get_human_feedback` method.
+
+Here's a breakdown:
+
+1. **Agent Proposes an Action:** The RL agent (the `PPO` model) uses the processed EEG data (`processed_data`) to predict an action. This happens in the `process_data` function within `main.py`.
+2. **Action Displayed (Potentially):** The predicted action is printed to the console:  `print(f"RL Agent Suggested Action: {action}")`
+3. **Human Feedback Request:** The code then pauses and asks for your approval of the action. This is done by presenting the prompt "Approve action? (Press 'y' for yes, 'n' for no, timeout=3s)" (or similar) in the console.
+4. **Feedback Input:** You, the human, are expected to press either the 'y' key for "yes" (approve) or the 'n' key for "no" (reject) *within the time limit*.
+5. **Action Execution (Conditional):**
+    * If you approve (press 'y'), the action is sent to the drone (if `connect_drone` is True).
+    * If you reject (press 'n'), a counter action is sent to revert.
+6. **Reward Adjustment:** The agent receives a reward based on your feedback:
+    * Positive feedback ('y') results in a positive reward (+1).
+    * Negative feedback ('n') results in a negative reward (-1).
+    * No feedback (timeout) results in a small reward (0.1).
+
+**Possible Actions the Agent Might Ask You About:**
+
+The actions are determined by the `action_space` defined in the `DroneControlEnv` and are continuous values within a specific range. The agent has 2 action features.
+
+* **Forward/Backward Speed:** This controls the drone's movement forward or backward. The value will be a number between -1.0 and 1.0, which is then scaled to a speed value. A positive value means forward and negative means backwards.
+* **Left/Right Speed:** This controls the drone's movement left or right. Similar to forward/backward speed, the value will be a number between -1.0 and 1.0. A positive value means right and negative means left.
+
+**Example Scenario:**
+
+1. The EEG data indicates that you are thinking about moving the drone forward and to the right.
+2. The RL agent predicts the action `[0.5, 0.3]`.
+3. The console displays: `"RL Agent Suggested Action: [0.5, 0.3]"` and `"Approve action? (Press 'y' for yes, 'n' for no, timeout=3s)"`.
+4. If you press 'y', the drone will move forward at approximately 50% of its maximum speed and to the right at approximately 30% of its maximum speed. The agent receives a reward of +1.
+5. If you press 'n', the drone will perform the inverse movement (-50% forward, -30% right, which is backwards and to the left). The agent receives a reward of -1.
+
+**Important Considerations:**
+
+* **Action Interpretation:** The raw action values (e.g., `[0.5, 0.3]`) might not be immediately intuitive. The agent is learning to map EEG patterns to these action values, and it's the *relative* values that matter.
+* **Timeout:** If you don't provide feedback within the timeout period, the agent will proceed with the action (or a default behavior) and receive a neutral or small reward.
+* **Exploration:** In the early stages of training, the agent will likely explore a wide range of actions, some of which might seem random or counterintuitive. This is a normal part of the learning process.
+* 
+
 **Why These Design Choices?**
 
 * **Continuous Action Space:** We use a continuous action space (`spaces.Box`) because the drone's speed can be any value within a certain range, not just a few discrete options.
@@ -261,8 +302,11 @@ The main code related to Reinforcement Learning is in `realtimelearning_rlagent.
 4. The `train_agent()` function uses the PPO agent to predict an action based on the EEG data.
 5. The `step()` function in the `DroneControlEnv` class applies the action to the drone (sends a command to the drone).
 6. The `step()` function also calculates a reward based on the drone's movement.
-7. The PPO agent uses the reward to update its policy (the neural network) so that it will be more likely to choose actions that lead to higher rewards in the future.
-8. The process repeats, allowing the agent to learn over time how to control the drone using EEG data.
+7. MAX_SPEED Constant: I've defined MAX_SPEED = 50 (representing 50%) at the beginning of the file. This is the new default maximum speed. 
+8. The DroneControlEnv takes a max_speed argument in its constructor (defaulting to MAX_SPEED). This value is stored as self.max_speed.
+9. Speed Scaling: The step function scales the forward_backward_speed and left_right_speed by self.max_speed instead of 100. max_speed in train_drone_rl: The train_drone_rl function  also takes a max_speed argument. Command-line Configuration: The main script passes max_speed=25 or whatever value is given when the script is called.
+8. The PPO agent uses the reward to update its policy (the neural network) so that it will be more likely to choose actions that lead to higher rewards in the future.
+9. The process repeats, allowing the agent to learn over time how to control the drone using EEG data.
 
 **Intuition and Analogy**
 
