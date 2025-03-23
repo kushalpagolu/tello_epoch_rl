@@ -91,9 +91,15 @@ class TelloController:
     def set_yaw_velocity(self, speed):
         self.yaw_velocity = speed
         self.tello.set_yaw_velocity(speed)
-
+        
+    def send_rc_control(self, left_right, forward_backward):
+        try:
+            self.tello.send_rc_control(left_right, forward_backward, 0, 0)
+        except Exception as e:
+            print(f"Error sending RC control: {e}")
+            
     def send_rc_control(self):
         try:
             self.tello.send_rc_control(self.left_right_speed, self.forward_backward_speed, self.up_down_speed, self.yaw_velocity)
         except Exception as e:
-            self.logger.error(f"Error sending RC control: {e}")
+            print(f"Error sending RC control: {e}")
