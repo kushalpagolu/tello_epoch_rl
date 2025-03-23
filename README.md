@@ -157,6 +157,7 @@ This file defines the RL environment and agent, including the state space, actio
 
 
 ### Tello Drone Control (drone_control.py)
+    
     - Implements commands via djitellopy API:
     - takeoff(), land()
     - move_forward(distance), move_back(distance)
