@@ -38,8 +38,8 @@ Before running the project, make sure you have the following:
 1.  Clone the repository:
 
     ```
-    git clone [https://github.com/kushalpagolu/tello_epoch_rl]
-    cd [tello_epoch_rl]
+    git clone https://github.com/kushalpagolu/tello_epoch_rl
+    cd tello_epoch_rl
     ```
 
 2.  Install the required Python packages:
