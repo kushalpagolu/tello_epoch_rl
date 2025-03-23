@@ -273,7 +273,7 @@ Here's a breakdown:
 
 ## How send_rc_control() Works
 
-**sends continuous movement commands to the drone based on speed values (range -100 to 100). Here's how the parameters control movement**
+**Sends continuous movement commands to the drone based on speed values (range -100 to 100). Here's how the parameters control movement**
     ```
     self.tello.send_rc_control(left_right, forward_backward, up_down, yaw_velocity)  
     ```
@@ -336,22 +336,22 @@ Here's a breakdown:
 
 **How It All Works Together**
 
-1. The `visualizer_epoch.py` script collects EEG data from the Emotiv headset.
-2. The `emotiv_streamer_rl.py` script preprocesses the EEG data and extracts relevant features (band power, PCA components).
-3. The preprocessed EEG data is fed into the `train_agent()` function in `realtimelearning_rlagent.py`.
-4. The `train_agent()` function uses the PPO agent to predict an action based on the EEG data.
-5. The `step()` function in the `DroneControlEnv` class applies the action to the drone (sends a command to the drone).
-6. The `step()` function also calculates a reward based on the drone's movement.
-7. MAX_SPEED Constant: I've defined MAX_SPEED = 50 (representing 50%) at the beginning of the file. This is the new default maximum speed. 
-8. The DroneControlEnv takes a max_speed argument in its constructor (defaulting to MAX_SPEED). This value is stored as self.max_speed.
-9. Speed Scaling: The step function scales the forward_backward_speed and left_right_speed by self.max_speed instead of 100. max_speed in train_drone_rl: The train_drone_rl function  also takes a max_speed argument. Command-line Configuration: The main script passes max_speed=25 or whatever value is given when the script is called.
-8. The PPO agent uses the reward to update its policy (the neural network) so that it will be more likely to choose actions that lead to higher rewards in the future.
+1. The **`visualizer_epoch.py`** script collects EEG data from the Emotiv headset.
+2. The **`emotiv_streamer_rl.py`** script preprocesses the EEG data and extracts relevant features (band power, PCA components).
+3. The preprocessed EEG data is fed into the **`train_agent()`** function in `realtimelearning_rlagent.py`.
+4. The **`train_agent()`**function uses the PPO agent to predict an action based on the EEG data.
+5. The **`step()`** function in the `DroneControlEnv` class applies the action to the drone (sends a command to the drone).
+6. The **`step()`** function also calculates a reward based on the drone's movement.
+7. **MAX_SPEED Constant**: I've defined MAX_SPEED = 30 (representing 50%) at the beginning of the file. This is the new default maximum speed. 
+8. The **DroneControlEnv** takes a max_speed argument in its constructor (defaulting to MAX_SPEED). This value is stored as self.max_speed.
+9. **Speed Scaling:** The step function scales the forward_backward_speed and left_right_speed by self.max_speed instead of 100. max_speed in train_drone_rl: The train_drone_rl function  also takes a max_speed argument. Command-line Configuration: The main script passes max_speed=25 or whatever value is given when the script is called.
+8. The **PPO agent** uses the reward to update its policy (the neural network) so that it will be more likely to choose actions that lead to higher rewards in the future.
 9. The process repeats, allowing the agent to learn over time how to control the drone using EEG data.
 
 **How Learning Happens in the Code:**
 
 The **'train_step()'** function takes EEG data, and uses the model to predict an action.
-The **'step()' **function applies the action to the drone, and returns the reward.
+The **'step()'** function applies the action to the drone, and returns the reward.
 The **'model.learn(total_timesteps=1)'** function takes the data from the step function, and updates the models weights.
 This process is repeated many times, which causes the model to improve over time.
 
