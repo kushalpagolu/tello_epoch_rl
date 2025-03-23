@@ -272,6 +272,7 @@ Here's a breakdown:
   
 
 ## How send_rc_control() Works
+    
     ```
     self.tello.send_rc_control(left_right, forward_backward, up_down, yaw_velocity)
     ```
@@ -283,7 +284,6 @@ Here's a breakdown:
 
 
 **Possible Actions the Agent Might Ask You About:**
-
     The actions are determined by the `action_space` defined in the `DroneControlEnv` and are continuous values within a specific range. The agent has 2 action features.
 
     -    action[0] → Forward/Backward (-1.0 to 1.0)
