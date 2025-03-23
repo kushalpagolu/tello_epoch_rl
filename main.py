@@ -4,14 +4,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from visualizer_realtime import RealtimeEEGVisualizer
-from stream_data_emotivdisconnect import EmotivStreamer
-from learning_rlagent_emotivdisconnect import DroneControlEnv, PPO
+from stream_data import EmotivStreamer
+from learning_rlagent import DroneControlEnv, PPO
 import time
 import os
 import logging
 import signal
 import argparse
+import sys
+import select
 
+HUMAN_FEEDBACK_TIMEOUT = 5  # Seconds to wait for human feedback
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -44,7 +47,7 @@ def process_data(emotiv, visualizer, env, model, connect_drone):
             if consecutive_empty_packets > max_empty_packets:
                 logger.error("Too many consecutive empty packets. Reconnecting...")
                 emotiv.disconnect()
-                time.sleep(5)  # Added reconnection delay
+                time.sleep(5)
                 if emotiv.connect():
                     consecutive_empty_packets = 0
                 else:
@@ -62,21 +65,61 @@ def process_data(emotiv, visualizer, env, model, connect_drone):
 
         # Process data for RL agent
         processed_data = emotiv.preprocess_eeg_data(packet)
+        
+        # Debugging: Log processed data shape
         if processed_data is None:
             logger.warning("Failed to process EEG data. Skipping this packet.")
+            continue
+
+        logger.info(f"Processed data shape: {processed_data.shape}")
+        
+        # Ensure the processed data has the correct shape
+        if processed_data.shape != (16,):
+            logger.error(f"Incorrect processed data shape: {processed_data.shape}. Skipping.")
             continue
 
         env.update_state(processed_data)
 
         # RL agent step
         action, _states = model.predict(processed_data, deterministic=False)
-        print(f"RL Agent Suggested Action: {action}")
+        action_description = env._map_action_to_command(action)  # Map raw action to intuitive command
+        print(f"RL Agent Suggested Action: {action_description}")
 
+        # Get human feedback
+        print(f"Approve action? (Press 'y' for yes, 'n' for no, timeout={HUMAN_FEEDBACK_TIMEOUT}s)")
+        start_time = time.time()
+        feedback = None
+
+        while time.time() - start_time < HUMAN_FEEDBACK_TIMEOUT:
+            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                user_input = sys.stdin.readline().strip().lower()
+                if user_input == 'y':
+                    print("Action approved.")
+                    feedback = True
+                    break
+                elif user_input == 'n':
+                    print("Action rejected.")
+                    feedback = False
+                    break
+                else:
+                    print("Invalid input. Please press 'y' or 'n'.")
+            time.sleep(0.1)  # Sleep to avoid busy-waiting
+
+        if feedback is None:
+            print("No feedback received, proceeding...")
+            feedback = True  # Default to approving the action
+
+        # Execute action based on feedback
         if connect_drone:
-            # Take action with drone
-            env.step(action)
-        else:
-            print("Drone not connected. Simulating action.")
+            if feedback:
+                if action == 2:  # Land action
+                    if env.connect_drone and env.drone_connected:
+                        env.drone_controller.land()  # Execute land
+                        print("Landing the drone.")
+                else:
+                    env.step(action)
+            else:
+                print("Drone not connected. Simulating action.")
 
         # Store data
         global data_store
@@ -131,7 +174,7 @@ if __name__ == "__main__":
         logger.info("Emotiv EEG device connected. Starting real-time EEG streaming.")
         
         if args.connect_drone:
-            if env.connect_drone():
+            if env.connect_drone_controller():
                 logger.info("Drone connected successfully.")
             else:
                 logger.error("Failed to connect to drone. Exiting.")
