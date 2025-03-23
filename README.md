@@ -149,18 +149,14 @@ This file defines the RL environment and agent, including the state space, actio
     - After each action, waits for human feedback (y/n input).
     - Adjusts reward based on feedback.
 
-
 -    **Model Handling:**
-  
     - Loads an existing PPO model (drone_rl_eeg_human_loop.zip) if available.
     - Otherwise, creates a new PPO model.
     - Trains the model and saves after every episode.
 
-
 ### Tello Drone Control (drone_control.py)
 
 -    **TelloController:**
-  
     - Implements commands via djitellopy API:
     - takeoff(), land()
     - move_forward(distance), move_back(distance)
