@@ -135,6 +135,42 @@ This file defines the RL environment and agent, including the state space, actio
     -   `step()`: Takes an action, applies it to the drone (or simulator), and returns the next state, reward, done flag, and info.
     -   `load_or_create_model()`: Loads a pre-trained RL model or creates a new one if none exists.
     -   `train_step()`: Trains the RL agent using the EEG data.
+    -   Uses gym.Env to define a reinforcement learning environment.
+    -   Observation space consists of gyro_x, gyro_y, and 14 EEG channels (total 16 values).
+    -   Action space consists of [Forward/Backward, Left/Right] movement with values ranging from -1 to 1.
+    -   Supports optional drone connection via TelloController.
+    -   Drone Commands:
+    -   First action must be takeoff().
+    -   After takeoff, actions control movement:
+    -   action[0] → Forward/Backward speed. action[1] → Left/Right speed.
+    -   Sends RC commands to the drone.
+
+-    **Human-in-the-loop Reinforcement Learning:**
+
+    - After each action, waits for human feedback (y/n input).
+
+    - Adjusts reward based on feedback.
+
+-    **Model Handling:**
+
+    - Loads an existing PPO model (drone_rl_eeg_human_loop.zip) if available.
+
+    - Otherwise, creates a new PPO model.
+
+    - Trains the model and saves after every episode.
+
+
+### Tello Drone Control (drone_control.py)
+
+    - Implements commands via djitellopy API:
+
+    - takeoff(), land()
+
+    - move_forward(distance), move_back(distance)
+
+    - move_left(distance), move_right(distance)
+
+    - RC control: send_rc_control(left_right, forward_backward, up_down, yaw)
 
 #### `main.py`
 
@@ -145,6 +181,16 @@ This is the main entry point for running the application.
     -   Initializes the RL environment and agent.
     -   Starts a loop to continuously read EEG data, preprocess it, and train the RL agent.
     -   Controls the drone based on the RL agent's actions.
+    -   Connects to EEG Device (EmotivStreamer).
+    -   Visualizes EEG Data (RealtimeEEGVisualizer).
+    -   Loads PPO Model & DroneControlEnv.
+    -   Processes EEG data:
+    -   Reads EEG packets.
+    -   Updates state in RL environment.
+    -   Predicts action using the trained PPO model.
+    -   Maps action to drone movement.
+    -   Asks for human feedback (y/n).
+    -   Executes action if drone is connected.
 
 ## Data Preprocessing
 
@@ -232,13 +278,49 @@ Here's a breakdown:
     * Positive feedback ('y') results in a positive reward (+1).
     * Negative feedback ('n') results in a negative reward (-1).
     * No feedback (timeout) results in a small reward (0.1).
+  
+
+## How send_rc_control() Works
+      
+    ```
+    self.tello.send_rc_control(left_right, forward_backward, up_down, yaw_velocity)
+    ```
+**sends continuous movement commands to the drone based on speed values (range -100 to 100). Here's how the parameters control movement**
+    
+<img width="735" alt="Screenshot 2025-03-23 at 4 05 27 PM" src="https://github.com/user-attachments/assets/c6dce421-0cd9-41a7-aa81-a7ac0c03daa1" />
+
 
 **Possible Actions the Agent Might Ask You About:**
 
-The actions are determined by the `action_space` defined in the `DroneControlEnv` and are continuous values within a specific range. The agent has 2 action features.
+    The actions are determined by the `action_space` defined in the `DroneControlEnv` and are continuous values within a specific range. The agent has 2 action features.
+
+    -    action[0] → Forward/Backward (-1.0 to 1.0)
+    -    action[1] → Left/Right (-1.0 to 1.0)
 
 * **Forward/Backward Speed:** This controls the drone's movement forward or backward. The value will be a number between -1.0 and 1.0, which is then scaled to a speed value. A positive value means forward and negative means backwards.
+    - forward_backward_speed = int(action[0] * self.max_speed)
 * **Left/Right Speed:** This controls the drone's movement left or right. Similar to forward/backward speed, the value will be a number between -1.0 and 1.0. A positive value means right and negative means left.
+    - left_right_speed = int(action[1] * self.max_speed)
+
+      ```
+    - self.drone_controller.set_forward_backward_speed(forward_backward_speed)
+    - self.drone_controller.set_left_right_speed(left_right_speed)
+    - self.drone_controller.send_rc_control()
+      ```
+
+    - The drone continuously moves as long as this command is sent.
+    - The next action updates movement, leading to smooth control.
+
+    ```
+    If action[0] > 0.5 #the RL agent is pushing forward.
+    
+    If action[0] < -0.5 #it's pulling backward.
+    
+    If action[1] > 0.5 #it's moving right.
+    
+    If action[1] < -0.5 #it's moving left.
+    ```
+    **_So the drone moves in real-time based on RL decisions._**
 
 **Example Scenario:**
 
