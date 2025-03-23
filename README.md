@@ -48,18 +48,54 @@ Before running the project, make sure you have the following:
     pip install -r requirements.txt
     ```
 
-    If you do not have a `requirements.txt` file, install with the commands below:
+    If have any issues whiles using `requirements.txt` file, install with the commands below or install each library with "pip install *****" command:
+
+    Create a virtual environment:
+
+    Navigate to your project directory in the terminal and run:
+    
+    ```
+    python3 -m venv venv
+    ```
+    This creates a new virtual environment named venv in your project directory.
+    
+    Activate the virtual environment:
+    
+    On macOS and Linux:
+    
+    ```
+    source venv/bin/activate
+    ```
+    On Windows:
+    
+    ```
+    .\venv\Scripts\activate
 
     ```
-    pip install pycryptodome matplotlib pandas gym stable-baselines3 python-dotenv
+    Once the environment is activated, you'll see its name (venv) in parentheses at the beginning of your terminal prompt.
+    
+    Install the required packages:
+    
+    Make sure you are in the project directory and the virtual environment is activated. Then, run:
+    
+    ```
+    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv
     ```
 
-3.  Install the Emotiv drivers and software:
+    This will install all the necessary packages into your virtual environment.
 
-    -   Download and install the appropriate drivers and software for your Emotiv headset from the Emotiv website.
+    **_If you want to run the project in a your own system without virtual environment, then simply run the below command_**
+
+    ```
+    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv
+    ```
+
+4.  Install the Emotiv drivers and software:
+
+    -   Download and install the appropriate hid drivers for your code if pip did not install hid.
     -   Make sure your headset is properly connected and recognized by your computer.
 
-4.  Install the Tello drone libraries:
+5.  Install the Tello drone libraries:
 
     -   Refer to the Tello drone documentation for instructions on how to install the required libraries.
     -   Alternatively, you can use a Tello drone simulator.
