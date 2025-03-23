@@ -146,30 +146,21 @@ This file defines the RL environment and agent, including the state space, actio
     -   Sends RC commands to the drone.
 
 -    **Human-in-the-loop Reinforcement Learning:**
-
     - After each action, waits for human feedback (y/n input).
-
     - Adjusts reward based on feedback.
 
+
 -    **Model Handling:**
-
     - Loads an existing PPO model (drone_rl_eeg_human_loop.zip) if available.
-
     - Otherwise, creates a new PPO model.
-
     - Trains the model and saves after every episode.
 
 
 ### Tello Drone Control (drone_control.py)
-
     - Implements commands via djitellopy API:
-
     - takeoff(), land()
-
     - move_forward(distance), move_back(distance)
-
     - move_left(distance), move_right(distance)
-
     - RC control: send_rc_control(left_right, forward_backward, up_down, yaw)
 
 #### `main.py`
@@ -194,7 +185,7 @@ This is the main entry point for running the application.
 
 ## Data Preprocessing
 
-The data preprocessing steps are performed in the `stream_data_updated.py` file:
+The data preprocessing steps are performed in the `stream_data.py` file:
 
 1.  **Read Raw EEG Data:** The `read_packet()` function reads raw EEG data and gyroscope data from the Emotiv headset.
 2.  **Extract Features:** The `preprocess_eeg_data()` function performs feature extraction.
