@@ -1,0 +1,10 @@
+hidapi
+pycryptodome
+numpy
+scipy
+pandas
+matplotlib
+stable-baselines3
+gym
+djitellopy
+scikit-learn
