@@ -110,9 +110,49 @@ Before running the project, make sure you have the following:
     python main.py --connect-drone    
     ```
 
+# System Overview: RL-Based Drone Control with EEG Data
+
+## 1. Data Flow (From EEG to Drone Control)
+- **EmotivStreamer** processes EEG data from the headset and applies **bandpass filtering** and **band power calculations** to extract meaningful features.
+- The processed data (a **16-element feature vector**) is passed to the **DroneControlEnv** in `learning_rlagent.py`.
+
+## 2. RL Agent Action Prediction
+- **DroneControlEnv** (from `learning_rlagent.py`) provides the RL environment:
+  - **Observation space**: A 16-element vector (2 gyro values + 14 EEG channel features, with band power).
+  - **Action space**: 2 continuous values representing **forward/backward** and **left/right speed**, ranging from **-1 to 1**.
+- The RL agent (using **PPO** from `stable-baselines3`) learns to map **EEG data features** to **drone movement**:
+  - **`model.predict(processed_data)`**: After processing EEG data, the model predicts an **action**, which corresponds to movement directions (forward, backward, left, right).
+
+## 3. Action Execution and Feedback Loop
+- The **RL agent predicts the next action** based on the processed EEG data.
+- In **training mode** (`main.py`), the RL agent asks for **human feedback** on the action (via keyboard input) and adjusts the **reward** accordingly:
+  - **Positive feedback**: Reward = **+1**.
+  - **Negative feedback**: Reward = **-1**, and the action is **counteracted** (e.g., moving backward if moving forward was rejected).
+- The action is either **executed on the drone** if connected or **simulated** if the drone is not connected.
+
+## 4. Drone Control (`drone_control.py`)
+- The **Tello drone** is controlled via **`send_rc_control()`**:
+  - **left_right_speed** and **forward_backward_speed** are adjusted based on the **RL agent’s predicted action**.
+  - The drone **moves continuously** based on these speed values until a new action is predicted.
+
+## How Preprocessing Affects the RL Agent’s Learning:
+### EEG Preprocessing:
+- By **filtering** and **computing band power**, the RL agent receives **cleaner, more meaningful data** to base its decisions on.
+- The RL agent learns patterns that are **cognitive or motor-related** rather than just noise, improving **control accuracy**.
+
+### Impact on Prediction:
+- **Before preprocessing**: The RL agent would likely receive **noisy raw EEG data**, making it harder to map the data to actions.
+- **After preprocessing**: The agent receives **band power features**, which help identify **cognitive states related to movement** (e.g., moving the head forward = move drone forward).
+
+### RL Agent Learning:
+- The **RL policy** evolves to **associate EEG features** (such as **Alpha/Beta band power**) with specific drone actions.
+- With **human feedback**, the agent refines its actions, and the **reward system** ensures that the agent improves its performance.
+
+
 ### Code Explanation
 
 Here's a breakdown of the key code files and their functionality:
+
 
 #### `stream_data.py`
 
