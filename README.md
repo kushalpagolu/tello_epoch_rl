@@ -106,15 +106,13 @@ Before running the project, make sure you have the following:
 3.  Run the `main_updated.py` script without connecting drone to test streamer:
 
     ```
-    python main_updated.py
-    
+    python main_updated.py   
     ```
 
 4.  Use the `--connect-drone` flag to enable drone control when you connect both the drone and the Emotiv Epoch X headset. If you omit this flag, the script will run in streamer mode and simulate drone actions and print them on the console.
 
     ```
-    python main_updated.py --connect-drone
-    
+    python main_updated.py --connect-drone    
     ```
 
 ### Code Explanation
@@ -143,7 +141,7 @@ This file defines the RL environment and agent, including the state space, actio
     -   `load_or_create_model()`: Loads a pre-trained RL model or creates a new one if none exists.
     -   `train_step()`: Trains the RL agent using the EEG data.
 
-#### `main_updated.py`
+#### `main.py`
 
 This is the main entry point for running the application.
 
@@ -171,7 +169,7 @@ Please note that the current code uses the raw eeg values and does not estimate 
 To test the project, follow these steps:
 
 1.  Connect the Emotiv headset and Tello drone to your computer.
-2.  Run the `main_updated.py` script with the `--connect-drone` flag.
+2.  Run the `main.py -- connect-drone` flag.
 3.  Observe the drone's behavior. It should start to move based on your EEG signals.
 4.  Try to control the drone by focusing on different mental tasks (e.g., thinking about moving forward, backward, left, or right).
 5.  Monitor the real-time EEG data visualizer to see how your EEG signals change as you perform different mental tasks.
@@ -326,7 +324,7 @@ Contributions to this project are welcome. Feel free to submit pull requests or 
 
 This project is licensed under the MIT License.
 
-<div style="text-align: center">⁂</div>
+
 
 [^1]: https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/39465668/70686d52-9418-465d-b9e8-f0fb44e8b700/control_drone.py
 
