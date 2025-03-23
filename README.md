@@ -42,7 +42,7 @@ Before running the project, make sure you have the following:
     cd tello_epoch_rl
     ```
 
-2.  Install the required Python packages:
+2.  Install the required Python packages and or use virtual environment if you prefer that way:
 
     ```
     pip install -r requirements.txt
@@ -50,7 +50,7 @@ Before running the project, make sure you have the following:
 
     If have any issues whiles using `requirements.txt` file, install with the commands below or install each library with "pip install *****" command:
 
-    Create a virtual environment:
+    (Or)Create a virtual environment:
 
     Navigate to your project directory in the terminal and run:
     
@@ -79,7 +79,7 @@ Before running the project, make sure you have the following:
     Make sure you are in the project directory and the virtual environment is activated. Then, run:
     
     ```
-    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv
+    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv keyboard
     ```
 
     This will install all the necessary packages into your virtual environment.
