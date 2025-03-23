@@ -70,7 +70,6 @@ Before running the project, make sure you have the following:
     
     ```
     .\venv\Scripts\activate
-
     ```
     Once the environment is activated, you'll see its name (venv) in parentheses at the beginning of your terminal prompt.
     
@@ -87,7 +86,7 @@ Before running the project, make sure you have the following:
     **_If you want to run the project in a your own system without virtual environment, then simply run the below command_**
 
     ```
-    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv
+    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv keyboard
     ```
 
 4.  Install the Emotiv drivers and software:
@@ -176,32 +175,6 @@ To test the project, follow these steps:
 5.  Monitor the real-time EEG data visualizer to see how your EEG signals change as you perform different mental tasks.
 6.  Check that EEG and gyroscope data is being saved to the files under the data directory.
     -  If it is empty, terminate the running code via `````` to check that the last bits of code are saved as well.
-
-## Future Improvements
-
--   Implement human-in-the-loop RL to improve the agent's performance.
--   Train the RL agent on a larger dataset to improve its generalization ability.
--   Add more sophisticated signal processing techniques to extract more meaningful features from the EEG data.
--   Explore different RL algorithms to find the one that works best for this task.
-
-## Troubleshooting
-
-If you encounter any issues while running the project, try the following:
-
--   Make sure all the required software packages are installed.
--   Double-check the Emotiv headset and Tello drone connections.
--   Consult the Emotiv and Tello documentation for troubleshooting tips.
--   Check the error logs for any error messages or warnings.
--   Increase tolerance and reconnection delays as stated earlier in the file.
-
-## Contributions
-
-Contributions to this project are welcome. Feel free to submit pull requests or open issues to report bugs or suggest new features.
-
-## License
-
-This project is licensed under the [License Name] License.
-
 
 
 # Let us break down the reinforcement learning (RL) parts of this project.
@@ -323,7 +296,33 @@ Initially, you might wobble and fall a lot (negative rewards). But over time, yo
 
 The added human-in-the-loop component allows you to act as a "teacher" for the RL agent. By providing feedback on the agent's actions (approving or disapproving), you can help the agent learn more quickly and safely. It's like having a driving instructor who tells you when you're doing something right or wrong.
 
-Reinforcement learning can be a bit tricky to grasp at first, but with practice and experimentation, you'll get the hang of it. Let me know if you have any other questions.
+Reinforcement learning can be a bit tricky to grasp at first, but with practice and experimentation, you'll get the hang of it.
+
+
+## Future Improvements
+
+-   Implement human-in-the-loop RL to improve the agent's performance.
+-   Train the RL agent on a larger dataset to improve its generalization ability.
+-   Add more sophisticated signal processing techniques to extract more meaningful features from the EEG data.
+-   Explore different RL algorithms to find the one that works best for this task.
+
+## Troubleshooting
+
+If you encounter any issues while running the project, try the following:
+
+-   Make sure all the required software packages are installed.
+-   Double-check the Emotiv headset and Tello drone connections.
+-   Consult the Emotiv and Tello documentation for troubleshooting tips.
+-   Check the error logs for any error messages or warnings.
+-   Increase tolerance and reconnection delays as stated earlier in the file.
+
+## Contributions
+
+Contributions to this project are welcome. Feel free to submit pull requests or open issues to report bugs or suggest new features.
+
+## License
+
+This project is licensed under the MIT License.
 
 <div style="text-align: center">⁂</div>
 
