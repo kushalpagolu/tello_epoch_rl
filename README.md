@@ -281,6 +281,13 @@ The actions are determined by the `action_space` defined in the `DroneControlEnv
 8. The PPO agent uses the reward to update its policy (the neural network) so that it will be more likely to choose actions that lead to higher rewards in the future.
 9. The process repeats, allowing the agent to learn over time how to control the drone using EEG data.
 
+**How Learning Happens in Your Code:**
+
+The 'train_step()' function takes EEG data, and uses the model to predict an action.
+The 'step()' function applies the action to the drone, and returns the reward.
+The 'model.learn(total_timesteps=1)' function takes the data from the step function, and updates the models weights.
+This process is repeated many times, which causes the model to improve over time.
+
 **Intuition and Analogy**
 
 Think of it like learning to ride a bike:
