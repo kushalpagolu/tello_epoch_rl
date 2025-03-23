@@ -272,7 +272,6 @@ Here's a breakdown:
   
 
 ## How send_rc_control() Works
-    
     ```
     self.tello.send_rc_control(left_right, forward_backward, up_down, yaw_velocity)
     ```
