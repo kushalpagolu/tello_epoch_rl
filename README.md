@@ -13,7 +13,7 @@ This project demonstrates how to control a Tello drone using EEG data from an Em
 
 The project consists of several Python files:
 
--   `main_updated.py`: Main entry point for running the application. It handles connecting to the Emotiv headset and Tello drone, processing data, and running the RL agent.
+-   `main.py`: Main entry point for running the application. It handles connecting to the Emotiv headset and Tello drone, processing data, and running the RL agent.
 -   `stream_data_updated.py`: Handles communication with the Emotiv headset, decrypts the EEG data, and preprocesses it.
 -   `learning_rlagent_updated.py`: Defines the RL environment and agent, including the state space, action space, and reward function.
 -   `visualizer_realtime.py`: Implements a real-time EEG data visualizer using Matplotlib.
@@ -103,16 +103,16 @@ Before running the project, make sure you have the following:
 
 1.  Connect the Emotiv headset to your computer.
 2.  Connect the Tello drone to your computer (or start the simulator).
-3.  Run the `main_updated.py` script without connecting drone to test streamer:
+3.  Run the `main.py` script without connecting drone to test streamer:
 
     ```
-    python main_updated.py   
+    python main.py   
     ```
 
 4.  Use the `--connect-drone` flag to enable drone control when you connect both the drone and the Emotiv Epoch X headset. If you omit this flag, the script will run in streamer mode and simulate drone actions and print them on the console.
 
     ```
-    python main_updated.py --connect-drone    
+    python main.py --connect-drone    
     ```
 
 ### Code Explanation
