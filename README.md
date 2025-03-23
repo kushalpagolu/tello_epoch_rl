@@ -3,10 +3,172 @@ This project aims to control a Tello drone using real-time EEG data streamed fro
 
 
 
-# 
+# EEG-Based Drone Control with Reinforcement Learning
+
+## Overview
+
+This project demonstrates how to control a Tello drone using EEG data from an Emotiv headset. It uses reinforcement learning (RL) to train an agent to map EEG signals to drone control actions, such as moving forward, backward, left, and right.
+
+## Project Structure
+
+The project consists of several Python files:
+
+-   `main_updated.py`: Main entry point for running the application. It handles connecting to the Emotiv headset and Tello drone, processing data, and running the RL agent.
+-   `stream_data_updated.py`: Handles communication with the Emotiv headset, decrypts the EEG data, and preprocesses it.
+-   `learning_rlagent_updated.py`: Defines the RL environment and agent, including the state space, action space, and reward function.
+-   `visualizer_realtime.py`: Implements a real-time EEG data visualizer using Matplotlib.
+-   `drone_control.py`: (Optional) Contains code to control the Tello drone.
+-   `data/`: Directory to store the EEG and gyro data in Excel format.
+
+## Prerequisites
+
+Before running the project, make sure you have the following:
+
+-   **Hardware:**
+    -   Emotiv headset (EPOC+, Insight, or Flex)
+    -   Tello drone (or a simulator)
+    -   Computer with Python 3.6+
+-   **Software:**
+    -   Python 3.6+
+    -   Required Python packages (see `requirements.txt`)
+    -   Emotiv drivers and software
+
+### Installation
+
+1.  Clone the repository:
+
+    ```
+    git clone [[repository_url](https://github.com/kushalpagolu/tello_epoch_rl)]
+    cd [tello_epoch_rl]
+    ```
+
+2.  Install the required Python packages:
+
+    ```
+    pip install -r requirements.txt
+    ```
+
+    If you do not have a `requirements.txt` file, install with the commands below:
+
+    ```
+    pip install pycryptodome matplotlib pandas gym stable-baselines3 python-dotenv
+    ```
+
+3.  Install the Emotiv drivers and software:
+
+    -   Download and install the appropriate drivers and software for your Emotiv headset from the Emotiv website.
+    -   Make sure your headset is properly connected and recognized by your computer.
+
+4.  Install the Tello drone libraries:
+
+    -   Refer to the Tello drone documentation for instructions on how to install the required libraries.
+    -   Alternatively, you can use a Tello drone simulator.
+
+### Usage
+
+1.  Connect the Emotiv headset to your computer.
+2.  Connect the Tello drone to your computer (or start the simulator).
+3.  Run the `main_updated.py` script without connecting drone to test streamer:
+
+    ```
+    python main_updated.py
+    ```
+
+    -   Use the `--connect-drone` flag to enable drone control. If you omit this flag, the script will run in streamer mode and simulate drone actions.
+
+4.   ```
+    python main_updated.py --connect-drone
+    ```
+
+### Code Explanation
+
+Here's a breakdown of the key code files and their functionality:
+
+#### `stream_data_updated.py`
+
+This file handles communication with the Emotiv headset, decrypts the EEG data, and preprocesses it.
+
+-   **`EmotivStreamer` class:**
+    -   `__init__()`: Initializes the Emotiv streamer, including setting up the device ID, cipher key, and channel names.
+    -   `connect()`: Connects to the Emotiv headset using the `hid` library.
+    -   `disconnect()`: Disconnects from the Emotiv headset.
+    -   `read_packet()`: Reads a packet of EEG data from the headset, decrypts it, and extracts the EEG and gyro data.
+    -   `preprocess_eeg_data()`: Preprocesses the raw EEG data.
+
+#### `learning_rlagent_updated.py`
+
+This file defines the RL environment and agent, including the state space, action space, and reward function.
+
+-   **`DroneControlEnv` class:**
+    -   `__init__()`: Initializes the RL environment, including defining the action space (forward/backward speed, left/right speed) and the observation space (EEG and gyro data).
+    -   `reset()`: Resets the environment to its initial state.
+    -   `step()`: Takes an action, applies it to the drone (or simulator), and returns the next state, reward, done flag, and info.
+    -   `load_or_create_model()`: Loads a pre-trained RL model or creates a new one if none exists.
+    -   `train_step()`: Trains the RL agent using the EEG data.
+
+#### `main_updated.py`
+
+This is the main entry point for running the application.
+
+-   **`main()` function:**
+    -   Connects to the Emotiv headset and Tello drone.
+    -   Initializes the RL environment and agent.
+    -   Starts a loop to continuously read EEG data, preprocess it, and train the RL agent.
+    -   Controls the drone based on the RL agent's actions.
+
+## Data Preprocessing
+
+The data preprocessing steps are performed in the `stream_data_updated.py` file:
+
+1.  **Read Raw EEG Data:** The `read_packet()` function reads raw EEG data and gyroscope data from the Emotiv headset.
+2.  **Extract Features:** The `preprocess_eeg_data()` function performs feature extraction.
+    -   In the initial implementation, The EEG data from each channel would be passed to `calculate_band_power()`.
+    -   `calculate_band_power()` is a function to calculate the band power of each EEG channel. It uses Welch's method to estimate the power spectral density (PSD) of the EEG data and then sums the PSD values within the frequency bands.
+    -   The band power features (Delta, Theta, Alpha, Beta) for each channel are flattened into a single feature vector.
+3.  **Combine with Gyro Data:** The EEG features are combined with the gyroscope data to create the final feature vector.
+
+Please note that the current code uses the raw eeg values and does not estimate the band power, since we found that those methods were not applicable. If you want to re-implement the band power, you will need to estimate data using buffers.
+
+## Testing
+
+To test the project, follow these steps:
+
+1.  Connect the Emotiv headset and Tello drone to your computer.
+2.  Run the `main_updated.py` script with the `--connect-drone` flag.
+3.  Observe the drone's behavior. It should start to move based on your EEG signals.
+4.  Try to control the drone by focusing on different mental tasks (e.g., thinking about moving forward, backward, left, or right).
+5.  Monitor the real-time EEG data visualizer to see how your EEG signals change as you perform different mental tasks.
+6.  Check that EEG and gyroscope data is being saved to the files under the data directory.
+    -  If it is empty, terminate the running code via `````` to check that the last bits of code are saved as well.
+
+## Future Improvements
+
+-   Implement human-in-the-loop RL to improve the agent's performance.
+-   Train the RL agent on a larger dataset to improve its generalization ability.
+-   Add more sophisticated signal processing techniques to extract more meaningful features from the EEG data.
+-   Explore different RL algorithms to find the one that works best for this task.
+
+## Troubleshooting
+
+If you encounter any issues while running the project, try the following:
+
+-   Make sure all the required software packages are installed.
+-   Double-check the Emotiv headset and Tello drone connections.
+-   Consult the Emotiv and Tello documentation for troubleshooting tips.
+-   Check the error logs for any error messages or warnings.
+-   Increase tolerance and reconnection delays as stated earlier in the file.
+
+## Contributions
+
+Contributions to this project are welcome. Feel free to submit pull requests or open issues to report bugs or suggest new features.
+
+## License
+
+This project is licensed under the [License Name] License.
 
 
-Let us break down the reinforcement learning (RL) parts of this project, as if. We'll focus on the key concepts, the code, and the reasoning behind the design choices.
+
+# Let us break down the reinforcement learning (RL) parts of this project.
 
 **The Big Picture: Reinforcement Learning**
 
