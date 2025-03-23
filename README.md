@@ -114,7 +114,7 @@ Before running the project, make sure you have the following:
 
 Here's a breakdown of the key code files and their functionality:
 
-#### `stream_data_updated.py`
+#### `stream_data.py`
 
 This file handles communication with the Emotiv headset, decrypts the EEG data, and preprocesses it.
 
@@ -157,7 +157,8 @@ This file defines the RL environment and agent, including the state space, actio
 
 
 ### Tello Drone Control (drone_control.py)
-    
+
+-     **TelloController:**
     - Implements commands via djitellopy API:
     - takeoff(), land()
     - move_forward(distance), move_back(distance)
