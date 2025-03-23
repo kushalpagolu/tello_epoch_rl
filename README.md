@@ -107,12 +107,14 @@ Before running the project, make sure you have the following:
 
     ```
     python main_updated.py
+    
     ```
 
-    -   Use the `--connect-drone` flag to enable drone control. If you omit this flag, the script will run in streamer mode and simulate drone actions.
+4.  Use the `--connect-drone` flag to enable drone control when you connect both the drone and the Emotiv Epoch X headset. If you omit this flag, the script will run in streamer mode and simulate drone actions and print them on the console.
 
-4.   ```
+    ```
     python main_updated.py --connect-drone
+    
     ```
 
 ### Code Explanation
