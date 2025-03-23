@@ -272,11 +272,12 @@ Here's a breakdown:
   
 
 ## How send_rc_control() Works
-      
     ```
     self.tello.send_rc_control(left_right, forward_backward, up_down, yaw_velocity)
     ```
+    
 **sends continuous movement commands to the drone based on speed values (range -100 to 100). Here's how the parameters control movement**
+
     
 <img width="735" alt="Screenshot 2025-03-23 at 4 05 27 PM" src="https://github.com/user-attachments/assets/c6dce421-0cd9-41a7-aa81-a7ac0c03daa1" />
 
@@ -293,11 +294,11 @@ Here's a breakdown:
 * **Left/Right Speed:** This controls the drone's movement left or right. Similar to forward/backward speed, the value will be a number between -1.0 and 1.0. A positive value means right and negative means left.
     - left_right_speed = int(action[1] * self.max_speed)
 
-      ```
+  ```
     - self.drone_controller.set_forward_backward_speed(forward_backward_speed)
     - self.drone_controller.set_left_right_speed(left_right_speed)
     - self.drone_controller.send_rc_control()
-      ```
+  ```
 
     - The drone continuously moves as long as this command is sent.
     - The next action updates movement, leading to smooth control.
