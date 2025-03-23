@@ -10,7 +10,7 @@ The project consists of several Python files:
 
 -   `main.py`: Main entry point for running the application. It handles connecting to the Emotiv headset and Tello drone, processing data, and running the RL agent.
 -   `stream_data_updated.py`: Handles communication with the Emotiv headset, decrypts the EEG data, and preprocesses it.
--   `learning_rlagent_updated.py`: Defines the RL environment and agent, including the state space, action space, and reward function.
+-   `learning_rlagent.py`: Defines the RL environment and agent, including the state space, action space, and reward function.
 -   `visualizer_realtime.py`: Implements a real-time EEG data visualizer using Matplotlib.
 -   `drone_control.py`: (Optional) Contains code to control the Tello drone.
 -   `data/`: Directory to store the EEG and gyro data in Excel format.
@@ -125,7 +125,7 @@ This file handles communication with the Emotiv headset, decrypts the EEG data, 
     -   `read_packet()`: Reads a packet of EEG data from the headset, decrypts it, and extracts the EEG and gyro data.
     -   `preprocess_eeg_data()`: Preprocesses the raw EEG data.
 
-#### `learning_rlagent_updated.py`
+#### `learning_rlagent.py`
 
 This file defines the RL environment and agent, including the state space, action space, and reward function.
 
