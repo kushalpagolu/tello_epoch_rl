@@ -272,8 +272,9 @@ Here's a breakdown:
   
 
 ## How send_rc_control() Works
+
     ```
-    self.tello.send_rc_control(left_right, forward_backward, up_down, yaw_velocity)
+    self.tello.send_rc_control(left_right, forward_backward, up_down, yaw_velocity)  
     ```
     
 **sends continuous movement commands to the drone based on speed values (range -100 to 100). Here's how the parameters control movement**
