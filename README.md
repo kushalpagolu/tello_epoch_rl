@@ -20,7 +20,7 @@ The project consists of several Python files:
 Before running the project, make sure you have the following:
 
 -   **Hardware:**
-    -   Emotiv headset (EPOC+, Insight, or Flex)
+    -   Emotiv headset (EPOC X, Insight, or Flex) (This code was tested with emotiv epoch x headset with 14 channels of eeg data.)
     -   Tello drone (or a simulator)
     -   Computer with Python 3.6+
 -   **Software:**
@@ -47,7 +47,7 @@ Before running the project, make sure you have the following:
 
     (Or)Create a virtual environment:
 
-    Navigate to your project directory in the terminal and run:
+    Make sure you are in your project directory and in the terminal run:
     
     ```
     python3 -m venv venv
@@ -73,7 +73,7 @@ Before running the project, make sure you have the following:
     Make sure you are in the project directory and the virtual environment is activated. Then, run:
     
     ```
-    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv keyboard
+    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv pynput
     ```
 
     This will install all the necessary packages into your virtual environment.
@@ -81,17 +81,19 @@ Before running the project, make sure you have the following:
     **_If you want to run the project in a your own system without virtual environment, then simply run the below command_**
 
     ```
-    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv keyboard
+    pip install pycryptodome hid djitellopy numpy matplotlib pandas gym stable-baselines3 python-dotenv pynput
     ```
 
 4.  Install the Emotiv drivers and software:
 
-    -   Download and install the appropriate hid drivers for your code if pip did not install hid.
-    -   Make sure your headset is properly connected and recognized by your computer.
+    -   Download and install the appropriate hid drivers for the code if pip did not install hid. 'hid' enables to read the encryptrd data from any EEG device connected through a USB dongle. This is open-source and we can ignore any libraries which are bound behind paywall.
+    -   Example: cortex.py - the wrapper lib around EMOTIV Cortex API.
+    -   Make sure your headset is properly connected and recognized by your computer. Try to adjust the headset electrodes properly in their positions for a strong signal strength. Use plenty of saline on the sensor felts until they soak wet for best conductivity.
 
 5.  Install the Tello drone libraries:
 
     -   Refer to the Tello drone documentation for instructions on how to install the required libraries.
+    -   Ignore if djitellopy is already installed in the pip step you ran before.
     -   Alternatively, you can use a Tello drone simulator.
 
 ### Usage
@@ -104,7 +106,7 @@ Before running the project, make sure you have the following:
     python main.py   
     ```
 
-4.  Use the `--connect-drone` flag to enable drone control when you connect both the drone and the Emotiv Epoch X headset. If you omit this flag, the script will run in streamer mode and simulate drone actions and print them on the console.
+4.  Use the `--connect-drone` flag to enable drone control when you connect both the drone and the Emotiv Epoc X headset. If you omit this flag, the script will run in streamer mode and simulate drone actions and print them on the console.
 
     ```
     python main.py --connect-drone    
