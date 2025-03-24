@@ -23,8 +23,8 @@ class DroneControlEnv(gym.Env):
         super(DroneControlEnv, self).__init__()
         # Gyro X, Gyro Y, 14 EEG Channels
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(16,), dtype=np.float32)
-        #self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=np.float32)  # FB, LR
-        self.action_space = spaces.Discrete(3) # 0: Move, 1: Move, 2: Land
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=np.float32)  # FB, LR
+        #self.action_space = spaces.Discrete(3) # 0: Move, 1: Move, 2: Land
         self.current_state = np.zeros(16)
         self.connect_drone = connect_drone
         self.drone_controller = None  # Initialize to None
@@ -72,7 +72,7 @@ class DroneControlEnv(gym.Env):
         # Initialize speeds to 0 to avoid UnboundLocalError
        # forward_backward_speed = 0
       #  left_right_speed = 0
-
+        print(f"fb, lr = {fb}, {lr}", flush=True)
         current_time = time.time()
         if current_time - self.last_action_time >= ACTION_DELAY:
             self.last_action_time = current_time
@@ -108,21 +108,22 @@ class DroneControlEnv(gym.Env):
             action_description = self._map_action_to_command(action)
             self.logger.info(f"Predicted Action: {action_description}")
 
-            # Get human feedback
+        # Get human feedback
             self.human_feedback = self.get_human_feedback()
 
             if self.human_feedback is not None:
                 if self.human_feedback:
-                    reward = 1  # Positive feedback
+                    reward = 1.5  # Positive feedback - Increase from 1
                 else:
-                    reward = -1  # Negative feedback
+                    reward = -1.5  # Negative feedback - Increase from -1
                     if self.connect_drone and self.drone_connected:
                         self.drone_controller.set_forward_backward_speed(-forward_backward_speed)
                         self.drone_controller.set_left_right_speed(-left_right_speed)
                         self.drone_controller.send_rc_control()
                         self.logger.info("Action counteracted due to negative feedback")
             else:
-                reward = 0.1  # Small reward for taking action (no feedback)
+                reward = 0.2  # Small reward for taking action (no feedback) - Increased from 0.1
+
 
             self.action_event.set()  # Signal action taken
 
@@ -175,49 +176,50 @@ class DroneControlEnv(gym.Env):
             self.logger.info("Created new model")
         return self.model
 
-def train_drone_rl(connect_drone=True, max_speed=MAX_SPEED):
-    logger = logging.getLogger(__name__)
-    env = DroneControlEnv(connect_drone=connect_drone, max_speed=max_speed)
-    model = env.load_or_create_model()
-    env.connect_drone_controller()  # Connecting here
+    @classmethod
+    def train_drone_rl(cls, connect_drone=True, max_speed=MAX_SPEED):
+        logger = logging.getLogger(__name__)
+        env = DroneControlEnv(connect_drone=connect_drone, max_speed=max_speed)
+        model = env.load_or_create_model()
+        env.connect_drone_controller()  # Connecting here
 
-    num_episodes = 1000
-    total_rewards = []  # List to track total rewards for each episode
-    for episode in range(num_episodes):
-        obs = env.reset()
-        done = False
-        episode_reward = 0
+        num_episodes = 1000
+        total_rewards = []  # List to track total rewards for each episode
+        for episode in range(num_episodes):
+            obs = env.reset()
+            done = False
+            episode_reward = 0
 
-        while not done:
-            eeg_data = obs  # This may change, depending on data source
-            action = env.train_step(eeg_data)
-            obs, reward, done, info = env.step(action)
-            episode_reward += reward
-            model.learn(total_timesteps=1000)  # Training happens here
-        
-        print(f"Episode {episode + 1}, Total Reward: {episode_reward}")
-        total_rewards.append(episode_reward)  # Store total reward for this episode
+            while not done:
+                eeg_data = obs  # This may change, depending on data source
+                action = env.train_step(eeg_data)
+                obs, reward, done, info = env.step(action)
+                episode_reward += reward
+                model.learn(total_timesteps=1000)  # Training happens here
+            
+            print(f"Episode {episode + 1}, Total Reward: {episode_reward}")
+            total_rewards.append(episode_reward)  # Store total reward for this episode
 
-            # Log total reward for the current episode
-        logger.info(f"Episode {episode + 1}, Total Reward: {episode_reward}")
+                # Log total reward for the current episode
+            logger.info(f"Episode {episode + 1}, Total Reward: {episode_reward}")
 
-            # Calculate average reward every 100 episodes (or as desired)
-        if (episode + 1) % 100 == 0:
-            avg_reward = np.mean(total_rewards[-100:])  # Average of last 100 episodes
-            logger.info(f"Average Reward over last 100 episodes: {avg_reward:.2f}")
+                # Calculate average reward every 100 episodes (or as desired)
+            if (episode + 1) % 100 == 0:
+                avg_reward = np.mean(total_rewards[-100:])  # Average of last 100 episodes
+                logger.info(f"Average Reward over last 100 episodes: {avg_reward:.2f}")
 
+                # Save the model after each episode
+                logger.info(f"Episode {episode + 1}: Total Reward: {episode_reward}")
+                logger.info(f"Saving model after episode {episode + 1}")
+                model.save(MODEL_FILENAME)
+                logger.info(f"Model saved after episode {episode + 1}")
             # Save the model after each episode
-            logger.info(f"Episode {episode + 1}: Total Reward: {total_reward}")
-            logger.info(f"Saving model after episode {episode + 1}")
             model.save(MODEL_FILENAME)
-            logger.info(f"Model saved after episode {episode + 1}")
-        # Save the model after each episode
-        model.save(MODEL_FILENAME)
-        print(f"Model saved after episode {episode + 1}")
+            print(f"Model saved after episode {episode + 1}")
 
-    # Save the final model
-    model.save(MODEL_FILENAME)
-    print("Final model saved.")
+        # Save the final model
+        model.save(MODEL_FILENAME)
+        print("Final model saved.")
 
     def train_step(self, eeg_data):
         state = np.array(eeg_data)
@@ -259,6 +261,5 @@ def train_drone_rl(connect_drone=True, max_speed=MAX_SPEED):
                 self.human_feedback = False
         except AttributeError:
             pass  # Ignore non-character keys
-
 if __name__ == "__main__":
-    train_drone_rl(connect_drone=True, max_speed=25)  # or False for simulation
+    DroneControlEnv.train_drone_rl(connect_drone=True, max_speed=25)  # or False for simulation
