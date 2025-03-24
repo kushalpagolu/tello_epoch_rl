@@ -33,7 +33,7 @@ def save_data_continuously(data_store, filename_prefix="eeg_gyro"):
                 data_store.clear()
             except Exception as e:
                 logger.error(f"Error saving data to Excel: {str(e)}")
-        time.sleep(10)
+        time.sleep(30)
 #new code
 def process_data(emotiv, visualizer, env, model, connect_drone):
     consecutive_empty_packets = 0
@@ -73,11 +73,13 @@ def process_data(emotiv, visualizer, env, model, connect_drone):
         if processed_data.shape != (16,):
             logger.error(f"Incorrect processed data shape: {processed_data.shape}. Skipping.")
             continue
-
+        print(f"Processed data: {processed_data}")
         env.update_state(processed_data)
 
         # RL agent step
         action, _states = model.predict(processed_data, deterministic=False)
+        print(f"RL Agent Suggested Action: {action}")
+        print(f"RL Agent Suggested Action: {_states}")
         action_description = env._map_action_to_command(action)  # Map raw action to intuitive command
         print(f"RL Agent Suggested Action: {action_description}")
 
@@ -118,6 +120,7 @@ def process_data(emotiv, visualizer, env, model, connect_drone):
                         env.drone_controller.land()  # Land the drone
                         print("Landing the drone.")
                 else:
+                    print(f"Taking action: {action_description}")
                     env.step(action)
             else:
                 # Reject action and retry
