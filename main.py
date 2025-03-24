@@ -13,7 +13,7 @@ import signal
 import argparse
 import sys
 import select
-
+MODEL_FILENAME = os.path.join(os.getcwd(), "models", "drone_rl_eeg_human_loop")
 HUMAN_FEEDBACK_TIMEOUT = 5  # Seconds to wait for human feedback
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ def save_data_continuously(data_store, filename_prefix="eeg_gyro"):
             except Exception as e:
                 logger.error(f"Error saving data to Excel: {str(e)}")
         time.sleep(10)
-
+#new code
 def process_data(emotiv, visualizer, env, model, connect_drone):
     consecutive_empty_packets = 0
     max_empty_packets = 200  # Increased tolerance for empty packets
@@ -47,7 +47,7 @@ def process_data(emotiv, visualizer, env, model, connect_drone):
             if consecutive_empty_packets > max_empty_packets:
                 logger.error("Too many consecutive empty packets. Reconnecting...")
                 emotiv.disconnect()
-                time.sleep(5)
+                time.sleep(5)  # Added reconnection delay
                 if emotiv.connect():
                     consecutive_empty_packets = 0
                 else:
@@ -65,15 +65,11 @@ def process_data(emotiv, visualizer, env, model, connect_drone):
 
         # Process data for RL agent
         processed_data = emotiv.preprocess_eeg_data(packet)
-        
-        # Debugging: Log processed data shape
         if processed_data is None:
             logger.warning("Failed to process EEG data. Skipping this packet.")
             continue
-
         logger.info(f"Processed data shape: {processed_data.shape}")
         
-        # Ensure the processed data has the correct shape
         if processed_data.shape != (16,):
             logger.error(f"Incorrect processed data shape: {processed_data.shape}. Skipping.")
             continue
@@ -91,18 +87,22 @@ def process_data(emotiv, visualizer, env, model, connect_drone):
         feedback = None
 
         while time.time() - start_time < HUMAN_FEEDBACK_TIMEOUT:
-            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-                user_input = sys.stdin.readline().strip().lower()
-                if user_input == 'y':
-                    print("Action approved.")
-                    feedback = True
-                    break
-                elif user_input == 'n':
-                    print("Action rejected.")
-                    feedback = False
-                    break
-                else:
-                    print("Invalid input. Please press 'y' or 'n'.")
+            try:
+                if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                    user_input = sys.stdin.readline().strip().lower()
+                    if user_input == 'y':
+                        print("Action approved.")
+                        feedback = True
+                        break
+                    elif user_input == 'n':
+                        print("Action rejected.")
+                        feedback = False
+                        break
+                    else:
+                        print("Invalid input. Please press 'y' or 'n'.")
+            except ValueError:
+                # In case of error during input handling (e.g., due to a closed stream), skip
+                continue
             time.sleep(0.1)  # Sleep to avoid busy-waiting
 
         if feedback is None:
@@ -112,14 +112,18 @@ def process_data(emotiv, visualizer, env, model, connect_drone):
         # Execute action based on feedback
         if connect_drone:
             if feedback:
+                # Take action with drone
                 if action == 2:  # Land action
                     if env.connect_drone and env.drone_connected:
-                        env.drone_controller.land()  # Execute land
+                        env.drone_controller.land()  # Land the drone
                         print("Landing the drone.")
                 else:
                     env.step(action)
             else:
-                print("Drone not connected. Simulating action.")
+                # Reject action and retry
+                print("Action rejected. Retrying...")
+        else:
+            print("Drone not connected. Simulating action.")
 
         # Store data
         global data_store
@@ -141,6 +145,11 @@ def signal_handler(sig, frame):
     logger.info("Ctrl+C detected. Shutting down...")
     stop_saving_thread.set()
     stop_main_loop.set()
+    # Ensure the model is saved before exit
+    if hasattr(env, 'model') and env.model:
+        logger.info(f"Saving model before exiting...")
+        env.model.save(MODEL_FILENAME)
+        logger.info(f"Model saved to {MODEL_FILENAME}.zip")
     if emotiv.device:
         emotiv.disconnect()
     
@@ -174,7 +183,7 @@ if __name__ == "__main__":
         logger.info("Emotiv EEG device connected. Starting real-time EEG streaming.")
         
         if args.connect_drone:
-            if env.connect_drone_controller():
+            if env.connect_drone():
                 logger.info("Drone connected successfully.")
             else:
                 logger.error("Failed to connect to drone. Exiting.")
