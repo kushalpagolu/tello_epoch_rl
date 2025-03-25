@@ -111,6 +111,10 @@ Before running the project, make sure you have the following:
     ```
     python main.py --connect-drone    
     ```
+5. Use the --train to train the agent in a separate function.
+    ```
+    python main.py --connect-drone --train
+    ```
 
 
 ## 1. Data Flow (From EEG to Drone Control)
